@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Flaunaflixx - Species Lookup</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-image: url('https://www.example.com/background.jpg'); /* Replace with a relevant background image URL */
+            background-size: cover;
+            background-position: center;
+        }
+        .container {
+            width: 50%;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            text-align: center;
+        }
+        h1 {
+            color: #007bff;
+            margin-bottom: 20px;
+            font-size: 32px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .form-group button {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        .form-group button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .result ul {
+            list-style: none;
+            padding: 0;
+        }
+        .result ul li {
+            padding: 5px 0;
+        }
+        img.logo {
+            width: 100px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="https://www.example.com/logo.png" alt="Flaunaflixx Logo" class="logo"> <!-- Replace with a relevant logo image URL -->
+        <h1>Flaunaflixx</h1>
+        <form id="locationForm">
+            <div class="form-group">
+                <label for="species_name">Species Name:</label>
+                <input type="text" id="species_name" name="species_name" required>
+            </div>
+            <button type="submit">Find Locations</button>
+        </form>
+        <div class="result" id="locationResult" style="display:none;">
+            <h3>Locations:</h3>
+            <ul id="locationsList"></ul>
+        </div>
+        <hr>
+        <form id="invasiveForm">
+            <div class="form-group">
+                <label for="species_name_invasive">Species Name:</label>
+                <input type="text" id="species_name_invasive" name="species_name" required>
+            </div>
+            <div class="form-group">
+                <label for="location">Location:</label>
+                <input type="text" id="location" name="location" required>
+            </div>
+            <button type="submit">Check Invasiveness</button>
+        </form>
+        <div class="result" id="invasiveResult" style="display:none;">
+            <h3>Invasiveness Check:</h3>
+            <p id="invasiveStatus"></p>
+        </div>
+    </div>
+    <script>
+        document.getElementById('locationForm').onsubmit = function(event) {
+            event.preventDefault();
+            const speciesName = document.getElementById('species_name').value;
+            fetch('/location', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({
+                    'species_name': speciesName
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const locationsList = document.getElementById('locationsList');
+                locationsList.innerHTML = '';
+                data.locations.forEach(location => {
+                    const li = document.createElement('li');
+                    li.textContent = location;
+                    locationsList.appendChild(li);
+                });
+                document.getElementById('locationResult').style.display = 'block';
+            });
+        };
+
+        document.getElementById('invasiveForm').onsubmit = function(event) {
+            event.preventDefault();
+            const speciesName = document.getElementById('species_name_invasive').value;
+            const location = document.getElementById('location').value;
+            fetch('/invasive', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({
+                    'species_name': speciesName,
+                    'location': location
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const status = data.is_invasive ? 'Yes, this species is invasive in the specified location.' : 'No, this species is not invasive in the specified location.';
+                document.getElementById('invasiveStatus').textContent = status;
+                document.getElementById('invasiveResult').style.display = 'block';
+            });
+        };
+    </script>
+</body>
+</html>
